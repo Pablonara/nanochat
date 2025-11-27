@@ -160,12 +160,18 @@ def compute_init(device_type="cuda"): # cuda|cpu|mps
     if device_type == "cuda":
         torch.set_float32_matmul_precision("high") # uses tf32 instead of fp32 for matmuls
 
-    # Distributed setup: Distributed Data Parallel (DDP), optional, and requires CUDA
+    # Distributed setup: Distributed Data Parallel (DDP), optional
     ddp, ddp_rank, ddp_local_rank, ddp_world_size = get_dist_info()
-    if ddp and device_type == "cuda":
-        device = torch.device("cuda", ddp_local_rank)
-        torch.cuda.set_device(device)  # make "cuda" default to this device
-        dist.init_process_group(backend="nccl", device_id=device)
+    if ddp:
+        if device_type == "cuda":
+            device = torch.device("cuda", ddp_local_rank)
+            torch.cuda.set_device(device)  # make "cuda" default to this device
+            backend = "nccl"
+            dist.init_process_group(backend=backend, device_id=device)
+        else:
+            device = torch.device(device_type)
+            backend = "gloo"
+            dist.init_process_group(backend=backend)
         dist.barrier()
     else:
         device = torch.device(device_type) # mps|cpu
@@ -177,7 +183,7 @@ def compute_init(device_type="cuda"): # cuda|cpu|mps
 
 def compute_cleanup():
     """Companion function to compute_init, to clean things up before script exit"""
-    if is_ddp():
+    if dist.is_available() and dist.is_initialized():
         dist.destroy_process_group()
 
 class DummyWandb:
