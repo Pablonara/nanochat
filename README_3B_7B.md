@@ -119,6 +119,8 @@ For complete details, see:
 
 - **`DESIGN_3B_7B.md`** - Full design document with architecture decisions, memory estimates, and optimization strategies
 - **`CHANGES_SUMMARY.md`** - Complete list of changes, usage examples, troubleshooting guide
+- **`TROUBLESHOOTING.md`** - Comprehensive troubleshooting guide for common issues
+- **`FIX_SUMMARY.md`** - Details of the DDP initialization fix for distributed training
 
 ## After Training
 

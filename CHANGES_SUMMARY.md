@@ -200,6 +200,16 @@ A: Yes, the model architecture is dataset-agnostic. Just ensure you have enough 
 ### Q: Why not use larger batch sizes with gradient accumulation?
 A: We optimize for wall-clock time. Larger per-GPU batches without accumulation are faster than smaller batches with accumulation.
 
+### Q: Can I use AMD ROCm GPUs (e.g., MI300X)?
+A: Yes! AMD ROCm provides CUDA API compatibility. Ensure your PyTorch installation is ROCm-enabled:
+```bash
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+```
+If it returns `False`, you may need to reinstall PyTorch with ROCm support. The training scripts will work identically on ROCm hardware.
+
+### Q: I'm getting "Default process group has not been initialized" error
+A: This has been fixed in the latest version. Make sure you're using `torchrun` to launch the training scripts, not plain `python`. The scripts in `run3b.sh` and `run7b.sh` use `torchrun` correctly.
+
 ## Validation Checklist
 
 Before running production training:
